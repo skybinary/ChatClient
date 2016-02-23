@@ -149,12 +149,12 @@ Private Sub cmdConnect_Click()
     Dim port As String
     Dim host As String
     anArray = Split(txtHost.Text, ":")
-    If Len(anArray) < 2 Then
+    If UBound(anArray) < 2 Then
         host = anArray(0)
         port = "25565"
     Else
         host = anArray(0)
-        port = txtPort.Text
+        port = anArray(1)
     End If
     sockMain.RemoteHost = host
     sockMain.RemotePort = port
