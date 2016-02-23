@@ -122,6 +122,7 @@ Attribute VB_Exposed = False
 Option Explicit
 ' ## enumbs have to be up top
 Private Const seper = "#|"
+Private Const weper = "|#"
 
 Public Enum eSpecialFolders
     SpecialFolder_AppData = &H1A    ' current widnows user on computer or network (98 or later)
