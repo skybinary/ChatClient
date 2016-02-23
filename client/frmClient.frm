@@ -120,9 +120,33 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
-' ## enumbs have to be up top
+' Constant Declerations
+
 Private Const seper = "#|"
-Private Const weper = "|#"
+Private Const cmd = "CMD" & seper
+Private Const msg = "MSG" & seper
+Private Const lst = "LST" & seper
+Private Const usr = "USR" & seper
+
+' Enumeration Declerations
+
+Public Enum ECmd
+    conReset = -2 'Could be used for server to reboot
+    conAbort = -1
+    srvConnSucc = 0
+    srvBadUsr = 1
+    srvQuit = 2
+    srvKick = 3
+    srvBan = 4
+    srvWait = 5
+End Enum
+
+Public Enum EUserLevel
+    usrVis = 0 'Very limited permissions
+    usrMem = 1 'Can create rooms
+    usrMod = 2 'Can kick, temp-ban, mute. Cannot mod other users.
+    usrOwn = 3 'Can permaban and mod users
+End Enum
 
 Public Enum eSpecialFolders
     SpecialFolder_AppData = &H1A    ' current widnows user on computer or network (98 or later)
