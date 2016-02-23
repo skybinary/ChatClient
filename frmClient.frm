@@ -19,14 +19,14 @@ Begin VB.Form frmClient
       ItemData        =   "frmClient.frx":0000
       Left            =   4680
       List            =   "frmClient.frx":0002
-      TabIndex        =   10
+      TabIndex        =   8
       Top             =   360
       Width           =   1815
    End
    Begin VB.TextBox txtNick 
       Height          =   285
       Left            =   1440
-      TabIndex        =   9
+      TabIndex        =   7
       Text            =   "NuckFuggets"
       Top             =   3480
       Width           =   1935
@@ -42,7 +42,7 @@ Begin VB.Form frmClient
       Height          =   285
       Left            =   1440
       Locked          =   -1  'True
-      TabIndex        =   7
+      TabIndex        =   5
       Text            =   "Hello ;)"
       Top             =   3000
       Width           =   1935
@@ -51,7 +51,7 @@ Begin VB.Form frmClient
       Caption         =   "send"
       Height          =   375
       Left            =   3600
-      TabIndex        =   6
+      TabIndex        =   4
       Top             =   3000
       Width           =   855
    End
@@ -59,7 +59,7 @@ Begin VB.Form frmClient
       Caption         =   "Connect"
       Height          =   375
       Left            =   240
-      TabIndex        =   5
+      TabIndex        =   3
       Top             =   3000
       Width           =   975
    End
@@ -68,31 +68,23 @@ Begin VB.Form frmClient
       Left            =   120
       Locked          =   -1  'True
       MultiLine       =   -1  'True
-      TabIndex        =   4
+      TabIndex        =   2
       Top             =   600
       Width           =   4455
    End
-   Begin VB.TextBox txtPort 
-      Height          =   285
-      Left            =   3480
-      TabIndex        =   3
-      Text            =   "25565"
-      Top             =   120
-      Width           =   855
-   End
    Begin VB.TextBox txtHost 
       Height          =   285
-      Left            =   1200
+      Left            =   720
       TabIndex        =   1
       Text            =   "nerd33.com"
       Top             =   120
-      Width           =   1215
+      Width           =   3855
    End
    Begin VB.Label Label3 
       Caption         =   "Users"
       Height          =   375
       Left            =   4680
-      TabIndex        =   11
+      TabIndex        =   9
       Top             =   0
       Width           =   1815
    End
@@ -100,7 +92,7 @@ Begin VB.Form frmClient
       Caption         =   "Nick"
       Height          =   255
       Left            =   240
-      TabIndex        =   8
+      TabIndex        =   6
       Top             =   3480
       Width           =   1095
    End
@@ -113,21 +105,13 @@ Begin VB.Form frmClient
       Top             =   3480
       Width           =   735
    End
-   Begin VB.Label Label2 
-      Caption         =   "Port"
-      Height          =   255
-      Left            =   2640
-      TabIndex        =   2
-      Top             =   120
-      Width           =   495
-   End
    Begin VB.Label Label1 
       Caption         =   "Host"
       Height          =   255
       Left            =   120
       TabIndex        =   0
       Top             =   120
-      Width           =   855
+      Width           =   495
    End
 End
 Attribute VB_Name = "frmClient"
@@ -137,6 +121,8 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 ' ## enumbs have to be up top
+Private Const seper = "#|"
+
 Public Enum eSpecialFolders
     SpecialFolder_AppData = &H1A    ' current widnows user on computer or network (98 or later)
     SpecialFolder_CommonAppData = &H23 ' for all widnows users on this comp (2000 or later)
@@ -144,6 +130,7 @@ Public Enum eSpecialFolders
     SpecialFolder_Documents = &H5  ' current widnows user docments
 End Enum
 Private gLoadedNick As String
+Private gLoadedHost As String
 Private gConfigFile As String
 
 Public Function SpecialFolder(pFolder As eSpecialFolders) As String
@@ -158,15 +145,27 @@ Public Function SpecialFolder(pFolder As eSpecialFolders) As String
 End Function
 
 Private Sub cmdConnect_Click()
-    sockMain.RemoteHost = txtHost.Text
-    sockMain.RemotePort = txtPort.Text
+    Dim anArray As Variant
+    Dim port As String
+    Dim host As String
+    anArray = Split(txtHost.Text, ":")
+    If Len(anArray) < 2 Then
+        host = anArray(0)
+        port = "25565"
+    Else
+        host = anArray(0)
+        port = txtPort.Text
+    End If
+    sockMain.RemoteHost = host
+    sockMain.RemotePort = port
     sockMain.Connect
 End Sub
 
 Private Sub cmdSend_Click()
     If sockMain.State = sckConnected Then
         sockMain.SendData "MSG:" & txtSend.Text
-        txtStatus.Text = txtStatus.Text & txtNick.Text & ":" & txtSend.Text & vbCrLf
+        ' comment out below as server sends msg back
+  '      txtStatus.Text = txtStatus.Text & txtNick.Text & ":" & txtSend.Text & vbCrLf
         txtSend.Text = ""
     End If
 End Sub
@@ -197,11 +196,17 @@ letsReadAgain:
  anArray = Split(sFinal, vbCrLf)
  Dim Itum As Variant
  gLoadedNick = "-"
+ gLoadedHost = "-"
  For Each Itum In anArray
-    If gLoadedNick = "-" Then gLoadedNick = Itum
-    Debug.Print "{" & Itum & "}"
+    Dim cnArray As Variant
+    cnArray = Split(Itum, seper)
+    If UBound(cnArray) > 0 Then
+        If cnArray(0) = "nick" Then gLoadedNick = cnArray(1)
+        If cnArray(0) = "host" Then gLoadedHost = cnArray(1)
+    End If
  Next
  txtNick.Text = gLoadedNick
+ txtHost.Text = gLoadedHost
  gConfigFile = strConfigFile
  Exit Sub
 readError:
@@ -227,23 +232,13 @@ createFileError:
     GoTo exitThis
     
 createFile:
-    iWriteFileNo = FreeFile
-    On Error GoTo createFileError
-    Open strConfigFile For Output As #iWriteFileNo
-        Write #iWriteFileNo, "erm" & vbCrLf
-    Close #iWriteFileNo
-    infinateLoop = infinateLoop + 1
-    If infinateLoop < 3 Then
-        GoTo letsReadAgain
-    Else
-        MsgBox ("uh oh we tried thrice!")
-    End If
+    Dim status As Boolean
+    status = writeSettingsToFile
     
  GoTo exitThis
  
 exitThis:
 End Sub
-
 
 Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     Dim strData As String
@@ -253,7 +248,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     Debug.Print "[" & strData & "]" '10053
     If InStr(1, strData, "CMD:") = 1 Then
         anArray = Split(strData, "CMD:")
-        If anArray(1) = "Connecting" Then
+        If anArray(1) = "CONN" Then
 '            txtSend.Locked = False
             Indicator.FillColor = &H80FF&
             Dim usrNick As String
@@ -264,7 +259,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
             txtSend.Locked = True
             Indicator.FillColor = &HFF&
             txtStatus.Text = txtStatus.Text & "CONNECTION ABORTED (NICK IN USE)" & vbCrLf
-        ElseIf anArray(1) = "Connection Successful" Then
+        ElseIf anArray(1) = "CONN_SUCC" Then
             txtSend.Locked = False
             Indicator.FillColor = &HFF00&
             Dim usrNaick As String
@@ -293,23 +288,33 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     End If
 End Sub
 
+Private Sub txtHost_LostFocus()
+    If gLoadedHost <> txtHost.Text Then writeSettingsToFile
+End Sub
+
 Private Sub txtNick_LostFocus()
-    If gLoadedNick <> txtNick.Text Then writeNewNickToFile txtNick.Text
+    If gLoadedNick <> txtNick.Text Then writeSettingsToFile
 End Sub
 
 Private Sub txtSend_KeyPress(KeyAscii As Integer)
     If KeyAscii = 13 Then cmdSend_Click
 End Sub
 
-Private Sub writeNewNickToFile(ByVal nick As String)
+'Private Sub writeNewNickToFile(ByVal nick As String)
+Private Function writeSettingsToFile()
     Dim iWriteFileNo As Integer
     iWriteFileNo = FreeFile
     On Error GoTo createFileError2
     Open gConfigFile For Output As #iWriteFileNo
-        Write #iWriteFileNo, nick & vbCrLf
+        Print #iWriteFileNo, "host" & seper & txtHost.Text
+        Print #iWriteFileNo, "nick" & seper & txtNick.Text
     Close #iWriteFileNo
-    Exit Sub
-createFileError2:
-        MsgBox ("error writing to file")
     
-End Sub
+    writeSettingsToFile = True
+    
+    Exit Function
+    
+createFileError2:
+
+    writeSettingsToFile = False
+End Function
