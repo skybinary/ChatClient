@@ -127,6 +127,7 @@ Private Const cmd = "CMD" & seper
 Private Const msg = "MSG" & seper
 Private Const lst = "LST" & seper
 Private Const usr = "USR" & seper
+Private Const svr = "SVR" & seper
 
 ' Enumeration Declerations
 
@@ -285,24 +286,30 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
             Dim usrNick As String
             usrNick = usr & txtNick.Text
             sockMain.SendData usrNick
-            Debug.Print usrNick
-        ElseIf anArray(1) = "10053" Then
+          '  Debug.Print usrNick
+        ElseIf anArray(1) = ECmd.conAbort Then
             txtSend.Locked = True
             Indicator.FillColor = &HFF&
             txtStatus.Text = txtStatus.Text & "CONNECTION ABORTED (NICK IN USE)" & vbCrLf
+            On Error GoTo quiterror
+            sockMain.Connect
+            On Error GoTo 0
         ElseIf anArray(1) = "CONN_SUCC" Then
             txtSend.Locked = False
             Indicator.FillColor = &HFF00&
             Dim usrNaick As String
             usrNick = "USR:" & txtNick.Text
             sockMain.SendData usrNick
-            Debug.Print usrNick
-        ElseIf anArray(1) = "QUIT" Then
+         '   Debug.Print usrNick
+        ElseIf anArray(1) = ECmd.srvQuit Then
             txtSend.Locked = True
             Indicator.FillColor = &HFF&
             txtStatus.Text = txtStatus.Text & "CONNECTION QUIT BY SERVER" & vbCrLf
+            On Error GoTo quiterror
+            sockMain.Connect
+            On Error GoTo 0
         End If
-        Debug.Print anArray(1)
+      '  Debug.Print anArray(1)
     ElseIf InStr(1, strData, "LST:") = 1 Then
         anArray = Split(strData, "LST:")
         Dim bnArray As Variant
@@ -313,10 +320,16 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
         For Each Item In bnArray
             lstUsers.AddItem Item
         Next
+    ElseIf InStr(1, strData, svr) = 1 Then
+        anArray = Split(strData, svr)
+        txtStatus.Text = txtStatus.Text & "SERVER MESSAGE:" & anArray(1) & vbCrLf
     ElseIf InStr(1, strData, "MSG:") = 1 Then
         anArray = Split(strData, "MSG:")
         txtStatus.Text = txtStatus.Text & anArray(1) & vbCrLf
     End If
+    Exit Sub
+quiterror:
+    ' do nada lol
 End Sub
 
 Private Sub txtHost_LostFocus()
