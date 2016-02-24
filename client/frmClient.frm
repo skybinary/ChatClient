@@ -78,17 +78,17 @@ Begin VB.Form frmClient
       TabIndex        =   1
       Text            =   "nerd33.com"
       Top             =   120
-      Width           =   2895
+      Width           =   3495
    End
    Begin VB.Shape Highlight 
       BorderStyle     =   0  'Transparent
       FillColor       =   &H00FFFFFF&
       FillStyle       =   0  'Solid
-      Height          =   80
-      Left            =   3770
+      Height          =   75
+      Left            =   4365
       Shape           =   3  'Circle
       Top             =   150
-      Width           =   80
+      Width           =   75
    End
    Begin VB.Label Label3 
       Caption         =   "Users"
@@ -109,11 +109,11 @@ Begin VB.Form frmClient
    Begin VB.Shape Indicator 
       FillColor       =   &H00C0C0C0&
       FillStyle       =   0  'Solid
-      Height          =   200
-      Left            =   3720
+      Height          =   195
+      Left            =   4320
       Shape           =   3  'Circle
       Top             =   120
-      Width           =   200
+      Width           =   195
    End
    Begin VB.Label Label1 
       Caption         =   "Host"
