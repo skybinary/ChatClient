@@ -2,7 +2,7 @@ VERSION 5.00
 Object = "{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0"; "MSWINSCK.OCX"
 Begin VB.Form frmClient 
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "Yo Momma"
+   Caption         =   "VB Chat Client"
    ClientHeight    =   3930
    ClientLeft      =   45
    ClientTop       =   330
@@ -181,9 +181,13 @@ Private Sub cmdConnect_Click()
         host = anArray(0)
         port = anArray(1)
     End If
+    On Error GoTo connecttohosterror
     sockMain.RemoteHost = host
     sockMain.RemotePort = port
     sockMain.Connect
+    Exit Sub
+connecttohosterror:
+    MsgBox (Err.Description)
 End Sub
 
 Private Sub cmdSend_Click()
@@ -209,6 +213,7 @@ Private Sub Form_Load()
  Dim infinateLoop As Integer
  Dim anArray As Variant
  
+ gConfigFile = strConfigFile
 letsReadAgain:
  iReadFileNo = FreeFile
  On Error GoTo readError
@@ -222,6 +227,7 @@ letsReadAgain:
  Dim Itum As Variant
  gLoadedNick = "-"
  gLoadedHost = "-"
+ 
  For Each Itum In anArray
     Dim cnArray As Variant
     cnArray = Split(Itum, seper)
@@ -244,7 +250,7 @@ If erno = 76 Then
     GoTo createFile ' obviously if the folder doesnt exist how can the file, so go straight to create it
  ElseIf erno = 53 Then
     ' file not found so create it????
-    Stop
+    writeSettingsToFile
  End If
  GoTo exitThis
  
@@ -271,13 +277,13 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     
     sockMain.GetData strData, vbString
     Debug.Print "[" & strData & "]" '10053
-    If InStr(1, strData, "CMD:") = 1 Then
-        anArray = Split(strData, "CMD:")
-        If anArray(1) = "CONN" Then
+    If InStr(1, strData, cmd) = 1 Then
+        anArray = Split(strData, cmd)
+        If anArray(1) = ECmd.srvConnSucc Then
 '            txtSend.Locked = False
             Indicator.FillColor = &H80FF&
             Dim usrNick As String
-            usrNick = "USR:" & txtNick.Text
+            usrNick = usr & txtNick.Text
             sockMain.SendData usrNick
             Debug.Print usrNick
         ElseIf anArray(1) = "10053" Then
