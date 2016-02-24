@@ -3,17 +3,34 @@ Object = "{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0"; "MSWINSCK.OCX"
 Begin VB.Form frmClient 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "VB Chat Client"
-   ClientHeight    =   3930
+   ClientHeight    =   5475
    ClientLeft      =   150
    ClientTop       =   480
-   ClientWidth     =   6645
+   ClientWidth     =   10740
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   3930
-   ScaleWidth      =   6645
+   ScaleHeight     =   5475
+   ScaleWidth      =   10740
    StartUpPosition =   3  'Windows Default
+   Begin VB.CommandButton Command1 
+      Caption         =   "Command1"
+      Height          =   1335
+      Left            =   7680
+      TabIndex        =   11
+      Top             =   600
+      Width           =   2415
+   End
+   Begin prjFN33Client.ChatBox ChatBox1 
+      Height          =   4320
+      Left            =   600
+      TabIndex        =   10
+      Top             =   480
+      Width           =   7920
+      _extentx        =   12912
+      _extenty        =   7620
+   End
    Begin VB.ListBox lstUsers 
       Height          =   3375
       ItemData        =   "frmClient.frx":0000
@@ -64,10 +81,11 @@ Begin VB.Form frmClient
       Width           =   975
    End
    Begin VB.TextBox txtStatus 
-      Height          =   2175
+      Height          =   735
       Left            =   120
       Locked          =   -1  'True
       MultiLine       =   -1  'True
+      ScrollBars      =   2  'Vertical
       TabIndex        =   2
       Top             =   600
       Width           =   4455
@@ -77,7 +95,7 @@ Begin VB.Form frmClient
       Left            =   720
       TabIndex        =   1
       Text            =   "nerd33.com"
-      Top             =   120
+      Top             =   105
       Width           =   3495
    End
    Begin VB.Shape Highlight 
@@ -188,6 +206,10 @@ Public Function SpecialFolder(pFolder As eSpecialFolders) As String
     If SpecialFolder = "" Then Err.Raise 513, "SpecialFolder", "The folder path could not be detected"
 End Function
 
+Private Sub ChatBox1_clicky(ByVal index As Integer)
+    ChatBox1.removeMsg (index)
+End Sub
+
 Private Sub cmdConnect_Click()
     Dim anArray As Variant
     Dim port As String
@@ -216,6 +238,10 @@ Private Sub cmdSend_Click()
   '      txtStatus.Text = txtStatus.Text & txtNick.Text & ":" & txtSend.Text & vbCrLf
         txtSend.Text = ""
     End If
+End Sub
+
+Private Sub Command1_Click()
+    ChatBox1.addNew ("testicles")
 End Sub
 
 Private Sub Form_Load()
@@ -290,7 +316,7 @@ createFile:
 exitThis:
 End Sub
 
-Private Sub lstUsers_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub lstUsers_MouseUp(Button As Integer, Shift As Integer, x As Single, Y As Single)
     If Button = 2 And lstUsers.ListIndex > -1 Then
         uListTarget = lstUsers.ListIndex
         PopupMenu mnuMod
@@ -356,7 +382,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
         Dim bnArray As Variant
         bnArray = Split(anArray(1), "`~`")
         lstUsers.Clear
-        Dim X As Integer
+        Dim x As Integer
         Dim Item As Variant
         For Each Item In bnArray
             lstUsers.AddItem Item
@@ -382,6 +408,9 @@ Private Sub txtNick_LostFocus()
 End Sub
 
 Private Sub txtSend_KeyPress(KeyAscii As Integer)
+    Dim newKeyascii As Integer
+    newKeyascii = KeyAscii
+    KeyAscii = 0
     If KeyAscii = 13 Then cmdSend_Click
 End Sub
 
