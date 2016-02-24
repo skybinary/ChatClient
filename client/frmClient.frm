@@ -4,8 +4,8 @@ Begin VB.Form frmClient
    BorderStyle     =   1  'Fixed Single
    Caption         =   "VB Chat Client"
    ClientHeight    =   3930
-   ClientLeft      =   45
-   ClientTop       =   330
+   ClientLeft      =   150
+   ClientTop       =   480
    ClientWidth     =   6645
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
@@ -18,7 +18,7 @@ Begin VB.Form frmClient
       Height          =   3375
       ItemData        =   "frmClient.frx":0000
       Left            =   4680
-      List            =   "frmClient.frx":0002
+      List            =   "frmClient.frx":000D
       TabIndex        =   8
       Top             =   360
       Width           =   1815
@@ -78,7 +78,17 @@ Begin VB.Form frmClient
       TabIndex        =   1
       Text            =   "nerd33.com"
       Top             =   120
-      Width           =   3855
+      Width           =   2895
+   End
+   Begin VB.Shape Highlight 
+      BorderStyle     =   0  'Transparent
+      FillColor       =   &H00FFFFFF&
+      FillStyle       =   0  'Solid
+      Height          =   80
+      Left            =   3770
+      Shape           =   3  'Circle
+      Top             =   150
+      Width           =   80
    End
    Begin VB.Label Label3 
       Caption         =   "Users"
@@ -99,11 +109,11 @@ Begin VB.Form frmClient
    Begin VB.Shape Indicator 
       FillColor       =   &H00C0C0C0&
       FillStyle       =   0  'Solid
-      Height          =   375
-      Left            =   3480
+      Height          =   200
+      Left            =   3720
       Shape           =   3  'Circle
-      Top             =   3480
-      Width           =   735
+      Top             =   120
+      Width           =   200
    End
    Begin VB.Label Label1 
       Caption         =   "Host"
@@ -112,6 +122,13 @@ Begin VB.Form frmClient
       TabIndex        =   0
       Top             =   120
       Width           =   495
+   End
+   Begin VB.Menu mnuMod 
+      Caption         =   "Mod"
+      Visible         =   0   'False
+      Begin VB.Menu mnuModKick 
+         Caption         =   "Kick Cunt"
+      End
    End
 End
 Attribute VB_Name = "frmClient"
@@ -158,6 +175,7 @@ End Enum
 Private gLoadedNick As String
 Private gLoadedHost As String
 Private gConfigFile As String
+Private uListTarget As Integer
 
 Public Function SpecialFolder(pFolder As eSpecialFolders) As String
     Dim objShell As Object
@@ -272,6 +290,29 @@ createFile:
 exitThis:
 End Sub
 
+Private Sub lstUsers_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+    If Button = 2 And lstUsers.ListIndex > -1 Then
+        uListTarget = lstUsers.ListIndex
+        PopupMenu mnuMod
+    End If
+End Sub
+
+Private Sub mnuModKick_Click()
+    Dim r As Integer
+    Dim u2Kick As String
+    u2Kick = lstUsers.List(uListTarget)
+    r = MsgBox("Kick " & u2Kick, vbOKCancel, "Mod Kick")
+    If r = 1 Then
+        MsgBox ("kicking da kunt: " & u2Kick)
+        ' aka kunt kicked
+        
+            sockMain.SendData cmd & u2Kick
+        
+        uListTarget = -1
+        lstUsers.ListIndex = lstUsers.ListIndex - 1
+    End If
+End Sub
+
 Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     Dim strData As String
     Dim anArray As Variant
@@ -298,7 +339,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
             txtSend.Locked = False
             Indicator.FillColor = &HFF00&
             Dim usrNaick As String
-            usrNick = "USR:" & txtNick.Text
+            usrNick = usr & txtNick.Text
             sockMain.SendData usrNick
          '   Debug.Print usrNick
         ElseIf anArray(1) = ECmd.srvQuit Then
@@ -315,7 +356,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
         Dim bnArray As Variant
         bnArray = Split(anArray(1), "`~`")
         lstUsers.Clear
-        Dim x As Integer
+        Dim X As Integer
         Dim Item As Variant
         For Each Item In bnArray
             lstUsers.AddItem Item
@@ -323,8 +364,8 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     ElseIf InStr(1, strData, svr) = 1 Then
         anArray = Split(strData, svr)
         txtStatus.Text = txtStatus.Text & "SERVER MESSAGE:" & anArray(1) & vbCrLf
-    ElseIf InStr(1, strData, "MSG:") = 1 Then
-        anArray = Split(strData, "MSG:")
+    ElseIf InStr(1, strData, msg) = 1 Then
+        anArray = Split(strData, msg)
         txtStatus.Text = txtStatus.Text & anArray(1) & vbCrLf
     End If
     Exit Sub
