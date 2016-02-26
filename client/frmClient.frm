@@ -3,36 +3,36 @@ Object = "{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0"; "MSWINSCK.OCX"
 Begin VB.Form frmClient 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "VB Chat Client"
-   ClientHeight    =   5475
+   ClientHeight    =   5955
    ClientLeft      =   150
    ClientTop       =   480
-   ClientWidth     =   10740
+   ClientWidth     =   7275
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   5475
-   ScaleWidth      =   10740
+   ScaleHeight     =   5955
+   ScaleWidth      =   7275
    StartUpPosition =   3  'Windows Default
    Begin VB.CommandButton Command1 
       Caption         =   "Command1"
-      Height          =   1335
-      Left            =   7680
+      Height          =   2535
+      Left            =   6600
       TabIndex        =   11
-      Top             =   600
-      Width           =   2415
+      Top             =   2640
+      Width           =   495
    End
    Begin prjFN33Client.ChatBox ChatBox1 
-      Height          =   4320
-      Left            =   600
+      Height          =   3360
+      Left            =   120
       TabIndex        =   10
-      Top             =   480
-      Width           =   7920
-      _extentx        =   12912
-      _extenty        =   7620
+      Top             =   2520
+      Width           =   6480
+      _extentx        =   11430
+      _extenty        =   5927
    End
    Begin VB.ListBox lstUsers 
-      Height          =   3375
+      Height          =   2010
       ItemData        =   "frmClient.frx":0000
       Left            =   4680
       List            =   "frmClient.frx":000D
@@ -42,42 +42,42 @@ Begin VB.Form frmClient
    End
    Begin VB.TextBox txtNick 
       Height          =   285
-      Left            =   1440
+      Left            =   1320
       TabIndex        =   7
       Text            =   "NuckFuggets"
-      Top             =   3480
+      Top             =   2040
       Width           =   1935
    End
    Begin MSWinsockLib.Winsock sockMain 
-      Left            =   4200
-      Top             =   3480
+      Left            =   4080
+      Top             =   2040
       _ExtentX        =   741
       _ExtentY        =   741
       _Version        =   393216
    End
    Begin VB.TextBox txtSend 
       Height          =   285
-      Left            =   1440
+      Left            =   1320
       Locked          =   -1  'True
       TabIndex        =   5
       Text            =   "Hello ;)"
-      Top             =   3000
+      Top             =   1560
       Width           =   1935
    End
    Begin VB.CommandButton cmdSend 
       Caption         =   "send"
       Height          =   375
-      Left            =   3600
+      Left            =   3480
       TabIndex        =   4
-      Top             =   3000
+      Top             =   1560
       Width           =   855
    End
    Begin VB.CommandButton cmdConnect 
       Caption         =   "Connect"
       Height          =   375
-      Left            =   240
+      Left            =   120
       TabIndex        =   3
-      Top             =   3000
+      Top             =   1560
       Width           =   975
    End
    Begin VB.TextBox txtStatus 
@@ -119,9 +119,9 @@ Begin VB.Form frmClient
    Begin VB.Label lblNick 
       Caption         =   "Nick"
       Height          =   255
-      Left            =   240
+      Left            =   120
       TabIndex        =   6
-      Top             =   3480
+      Top             =   2040
       Width           =   1095
    End
    Begin VB.Shape Indicator 
@@ -190,10 +190,12 @@ Public Enum eSpecialFolders
     SpecialFolder_LocalAppData = &H1C ' current user on this comp only (2000 or later)
     SpecialFolder_Documents = &H5  ' current widnows user docments
 End Enum
+
 Private gLoadedNick As String
 Private gLoadedHost As String
 Private gConfigFile As String
 Private uListTarget As Integer
+Private SendComplete As Boolean
 
 Public Function SpecialFolder(pFolder As eSpecialFolders) As String
     Dim objShell As Object
@@ -206,8 +208,8 @@ Public Function SpecialFolder(pFolder As eSpecialFolders) As String
     If SpecialFolder = "" Then Err.Raise 513, "SpecialFolder", "The folder path could not be detected"
 End Function
 
-Private Sub ChatBox1_clicky(ByVal index As Integer)
-    ChatBox1.removeMsg (index)
+Private Sub ChatBox1_clicky(ByVal Index As Integer)
+    ChatBox1.removeMsg (Index)
 End Sub
 
 Private Sub cmdConnect_Click()
@@ -247,7 +249,7 @@ End Sub
 Private Sub Form_Load()
  Dim strConfigFile As String
  Dim strConfigFolder As String
- 
+ SendComplete = True
  strConfigFolder = SpecialFolder(SpecialFolder_LocalAppData) & "\FN33"
  strConfigFile = strConfigFolder & "\config.ini"
  Dim sFileText As String
@@ -347,7 +349,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     Debug.Print "[" & strData & "]" '10053
     If InStr(1, strData, cmd) = 1 Then
         anArray = Split(strData, cmd)
-        If anArray(1) = ECmd.srvConnSucc Then
+        If anArray(1) = ECmd.srvWait Then
 '            txtSend.Locked = False
             Indicator.FillColor = &H80FF&
             Dim usrNick As String
@@ -361,7 +363,7 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
             On Error GoTo quiterror
             sockMain.Connect
             On Error GoTo 0
-        ElseIf anArray(1) = "CONN_SUCC" Then
+        ElseIf anArray(1) = ECmd.srvConnSucc Then
             txtSend.Locked = False
             Indicator.FillColor = &HFF00&
             Dim usrNaick As String
@@ -397,6 +399,10 @@ Private Sub sockMain_DataArrival(ByVal bytesTotal As Long)
     Exit Sub
 quiterror:
     ' do nada lol
+End Sub
+
+Private Sub sockMain_SendComplete()
+    SendComplete = True
 End Sub
 
 Private Sub txtHost_LostFocus()

@@ -11,7 +11,7 @@ Begin VB.UserControl ChatBox
    Begin VB.VScrollBar VScroll1 
       Height          =   3855
       Left            =   6480
-      TabIndex        =   3
+      TabIndex        =   2
       Top             =   120
       Visible         =   0   'False
       Width           =   255
@@ -29,17 +29,7 @@ Begin VB.UserControl ChatBox
          Index           =   0
          Left            =   0
          TabIndex        =   1
-         Top             =   0
-         Width           =   5895
-         _ExtentX        =   10398
-         _ExtentY        =   1085
-      End
-      Begin prjFN33Client.ChatMsg ChatMsgList 
-         Height          =   615
-         Index           =   1
-         Left            =   0
-         TabIndex        =   2
-         Top             =   600
+         Top             =   -615
          Width           =   5895
          _ExtentX        =   10398
          _ExtentY        =   1085
@@ -78,7 +68,7 @@ End Sub
 Private Sub Wrapper_Resize()
     Dim thisWidth As Long
     thisWidth = Wrapper.Width - 60
-    Dim msg As chatmsg
+    Dim msg As ChatMsg
     Dim x As Integer
     For x = 0 To ChatMsgList.UBound
         ChatMsgList(x).Width = thisWidth
@@ -90,7 +80,7 @@ End Sub
 Public Sub addNew(ByVal contents As String)
     Load ChatMsgList(ChatMsgList.UBound + 1)
     Dim num As Long
-    num = 615 * ChatMsgList.UBound
+    num = 615 * (ChatMsgList.UBound - 1)
     
     ChatMsgList(ChatMsgList.UBound).Top = num
     ChatMsgList(ChatMsgList.UBound).Visible = True
@@ -99,7 +89,12 @@ Public Sub addNew(ByVal contents As String)
 End Sub
 
 Public Sub removeMsg(ByVal Index As Integer)
-    Unload ChatMsgList(Index)
+    Dim mcount As Integer
+    Dim pcount As Integer
+    For mcount = Index To ChatMsgList.UBound - 1
+        ChatMsgList(mcount) = ChatMsgList(mcount + 1)
+    Next
+    Unload ChatMsgList(mcount)
 End Sub
 
 Sub showHideScroll(ByVal tf As Boolean)
