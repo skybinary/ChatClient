@@ -31,8 +31,8 @@ Begin VB.UserControl ChatBox
          TabIndex        =   1
          Top             =   -615
          Width           =   5895
-         _ExtentX        =   10398
-         _ExtentY        =   1085
+         _extentx        =   10398
+         _extenty        =   1085
       End
    End
 End
@@ -95,6 +95,10 @@ Public Sub removeMsg(ByVal Index As Integer)
         ChatMsgList(mcount) = ChatMsgList(mcount + 1)
     Next
     Unload ChatMsgList(mcount)
+End Sub
+
+Private Sub swapEm(ByVal c1 As Integer, c2 As Integer)
+    
 End Sub
 
 Sub showHideScroll(ByVal tf As Boolean)
