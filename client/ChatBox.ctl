@@ -90,7 +90,7 @@ End Sub
 
 Public Sub removeMsg(ByVal Index As Integer)
     Dim mcount As Integer
-    Dim pcount As Integer
+    Dim a As Integer
     For mcount = Index To ChatMsgList.UBound - 1
         ChatMsgList(mcount) = ChatMsgList(mcount + 1)
     Next
