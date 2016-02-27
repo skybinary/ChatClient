@@ -9,6 +9,7 @@ Begin VB.UserControl ChatMsg
    ScaleWidth      =   7155
    ToolboxBitmap   =   "ChatMsg.ctx":0000
    Begin VB.Label Message 
+      BackColor       =   &H00FFFFFF&
       Caption         =   "Label1"
       Height          =   375
       Left            =   30

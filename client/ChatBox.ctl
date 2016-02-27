@@ -48,6 +48,8 @@ Const minHeight As Long = 480
 
 Public Event clicky(ByVal Index As Integer)
 
+Private topOffset As Integer
+
 Private Sub ChatMsg1_GotFocus(Index As Integer)
 
 End Sub
@@ -59,19 +61,31 @@ End Sub
 Private Sub UserControl_Resize()
     If UserControl.Width < minWidth Then UserControl.Width = minWidth
     If UserControl.Height < minHeight Then UserControl.Height = minHeight
-  '  Debug.Print UserControl.Width & "," & UserControl.Height
     Wrapper.Width = UserControl.Width - 240
     Wrapper.Height = UserControl.Height - 240
     
+    VScroll1.Left = (Wrapper.Width + 240) - VScroll1.Width
+    VScroll1.Height = Wrapper.Height
+End Sub
+
+Private Sub VScroll1_Change()
+    topOffset = VScroll1.Value
 End Sub
 
 Private Sub Wrapper_Resize()
     Dim thisWidth As Long
-    thisWidth = Wrapper.Width - 60
+    Dim vw As Integer
+    If VScroll1.Visible Then vw = VScroll1.Width - 60 Else vw = 60
+    thisWidth = Wrapper.Width - vw
     Dim msg As ChatMsg
     Dim x As Integer
     For x = 0 To ChatMsgList.UBound
         ChatMsgList(x).Width = thisWidth
+        Dim num As Long
+        num = 615 * ((x - 1) + topOffset)
+        
+        ChatMsgList(x).Top = num
+        ChatMsgList(x).Visible = True
     Next
 End Sub
 
@@ -79,25 +93,39 @@ End Sub
 
 Public Sub addNew(ByVal contents As String)
     Load ChatMsgList(ChatMsgList.UBound + 1)
-    Dim num As Long
-    num = 615 * (ChatMsgList.UBound - 1)
-    
-    ChatMsgList(ChatMsgList.UBound).Top = num
-    ChatMsgList(ChatMsgList.UBound).Visible = True
-    
-    showHideScroll ((num + 615) > Wrapper.Height)
+    ChatMsgList(ChatMsgList.UBound).TestIndex = ChatMsgList.UBound
+    updateBox
 End Sub
 
 Public Sub removeMsg(ByVal Index As Integer)
     Dim mcount As Integer
     Dim a As Integer
     For mcount = Index To ChatMsgList.UBound - 1
-        ChatMsgList(mcount) = ChatMsgList(mcount + 1)
+        swapEm mcount, mcount + 1
+        'Set ChatMsgList(mcount) = ChatMsgList(mcount + 1)
     Next
-    Unload ChatMsgList(mcount)
+    Unload ChatMsgList(ChatMsgList.UBound)
+    updateBox
 End Sub
 
-Private Sub swapEm(ByVal c1 As Integer, c2 As Integer)
+Private Sub updateBox()
+    Wrapper_Resize
+    Dim num As Long
+    num = 615 * (ChatMsgList.UBound - 1)
+    showHideScroll ((num + 615) > Wrapper.Height)
+    If VScroll1.Visible Then
+        Dim calcsize As Integer
+        calcsize = UserControl.Height / 615 ' how many chatmsgs can fit in chatbox
+        Dim calctwo As Integer
+        calctwo = ChatMsgList.UBound - calcsize
+        VScroll1.Min = 0
+        VScroll1.Max = calctwo
+    End If
+    Debug.Print calcsize
+End Sub
+
+Private Sub swapEm(ByVal dest As Integer, src As Integer)
+    ChatMsgList(dest).TestIndex = ChatMsgList(src).TestIndex
     
 End Sub
 
