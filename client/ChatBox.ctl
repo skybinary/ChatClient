@@ -12,11 +12,13 @@ Begin VB.UserControl ChatBox
       Height          =   3855
       Left            =   6480
       TabIndex        =   2
+      TabStop         =   0   'False
       Top             =   120
       Visible         =   0   'False
       Width           =   255
    End
    Begin VB.PictureBox Wrapper 
+      BackColor       =   &H8000000C&
       Height          =   3975
       Left            =   120
       ScaleHeight     =   3915
@@ -31,8 +33,8 @@ Begin VB.UserControl ChatBox
          TabIndex        =   1
          Top             =   -615
          Width           =   5895
-         _extentx        =   10398
-         _extenty        =   1085
+         _ExtentX        =   10398
+         _ExtentY        =   1085
       End
    End
 End
@@ -70,19 +72,25 @@ End Sub
 
 Private Sub VScroll1_Change()
     topOffset = VScroll1.Value
+    Wrapper_Resize
 End Sub
 
 Private Sub Wrapper_Resize()
     Dim thisWidth As Long
     Dim vw As Integer
-    If VScroll1.Visible Then vw = VScroll1.Width - 60 Else vw = 60
+    If VScroll1.Visible Then
+        vw = VScroll1.Width - 60
+    Else
+        vw = 60
+        topOffset = 0
+    End If
     thisWidth = Wrapper.Width - vw
     Dim msg As ChatMsg
     Dim x As Integer
     For x = 0 To ChatMsgList.UBound
         ChatMsgList(x).Width = thisWidth
         Dim num As Long
-        num = 615 * ((x - 1) + topOffset)
+        num = 615 * ((x - 1) - topOffset)
         
         ChatMsgList(x).Top = num
         ChatMsgList(x).Visible = True
@@ -109,7 +117,6 @@ Public Sub removeMsg(ByVal Index As Integer)
 End Sub
 
 Private Sub updateBox()
-    Wrapper_Resize
     Dim num As Long
     num = 615 * (ChatMsgList.UBound - 1)
     showHideScroll ((num + 615) > Wrapper.Height)
@@ -121,6 +128,7 @@ Private Sub updateBox()
         VScroll1.Min = 0
         VScroll1.Max = calctwo
     End If
+    Wrapper_Resize
     Debug.Print calcsize
 End Sub
 
