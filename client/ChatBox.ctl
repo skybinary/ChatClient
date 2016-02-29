@@ -18,7 +18,7 @@ Begin VB.UserControl ChatBox
       Width           =   255
    End
    Begin VB.PictureBox Wrapper 
-      BackColor       =   &H8000000C&
+      BackColor       =   &H00FFFFFF&
       Height          =   3975
       Left            =   120
       ScaleHeight     =   3915
@@ -33,8 +33,8 @@ Begin VB.UserControl ChatBox
          TabIndex        =   1
          Top             =   -615
          Width           =   5895
-         _ExtentX        =   10398
-         _ExtentY        =   1085
+         _extentx        =   10398
+         _extenty        =   344
       End
    End
 End
@@ -51,6 +51,7 @@ Const minHeight As Long = 480
 Public Event clicky(ByVal Index As Integer)
 
 Private topOffset As Integer
+Private chatCombinedHeight As Long
 
 Private Sub ChatMsg1_GotFocus(Index As Integer)
 
@@ -87,13 +88,18 @@ Private Sub Wrapper_Resize()
     thisWidth = Wrapper.Width - vw
     Dim msg As ChatMsg
     Dim x As Integer
-    For x = 0 To ChatMsgList.UBound
+    Dim mypos As Integer
+    mypos = 0
+    ChatMsgList(0).Top = 0 - ChatMsgList(0).Height
+    For x = 1 To ChatMsgList.UBound
         ChatMsgList(x).Width = thisWidth
         Dim num As Long
-        num = 615 * ((x - 1) - topOffset)
+        num = mypos - topOffset
         
         ChatMsgList(x).Top = num
         ChatMsgList(x).Visible = True
+        
+        mypos = mypos + ChatMsgList(x).Height
     Next
 End Sub
 
@@ -118,19 +124,29 @@ End Sub
 
 Private Sub updateBox()
     Dim num As Long
-    num = 615 * (ChatMsgList.UBound - 1)
-    showHideScroll ((num + 615) > Wrapper.Height)
+    num = calcMsgsHeight - ChatMsgList(0).Height
+    ChatMsgList(0).Top = 0 - ChatMsgList(0).Height
+    showHideScroll (num > Wrapper.Height)
     If VScroll1.Visible Then
         Dim calcsize As Integer
-        calcsize = UserControl.Height / 615 ' how many chatmsgs can fit in chatbox
+        calcsize = num / UserControl.Height ' how many chatmsgs can fit in chatbox
         Dim calctwo As Integer
         calctwo = ChatMsgList.UBound - calcsize
         VScroll1.Min = 0
-        VScroll1.Max = calctwo
+        VScroll1.Max = num
     End If
     Wrapper_Resize
-    Debug.Print calcsize
+ '   Debug.Print calcsize
 End Sub
+
+Private Function calcMsgsHeight() As Long
+    Dim totty As Long
+    Dim x As Integer
+    For x = 0 To ChatMsgList.Count - 1
+        totty = totty + ChatMsgList(x).Height
+    Next
+    calcMsgsHeight = totty
+End Function
 
 Private Sub swapEm(ByVal dest As Integer, src As Integer)
     ChatMsgList(dest).TestIndex = ChatMsgList(src).TestIndex

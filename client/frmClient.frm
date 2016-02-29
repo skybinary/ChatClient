@@ -27,7 +27,7 @@ Begin VB.Form frmClient
       Left            =   120
       TabIndex        =   10
       Top             =   2520
-      Width           =   6480
+      Width           =   6360
       _extentx        =   11430
       _extenty        =   5927
    End
