@@ -16,20 +16,20 @@ Begin VB.Form frmClient
    StartUpPosition =   3  'Windows Default
    Begin VB.CommandButton Command1 
       Caption         =   "Command1"
-      Height          =   2535
-      Left            =   6600
+      Height          =   3135
+      Left            =   6720
       TabIndex        =   11
       Top             =   2640
       Width           =   495
    End
    Begin prjFN33Client.ChatBox ChatBox1 
       Height          =   3360
-      Left            =   120
+      Left            =   0
       TabIndex        =   10
       Top             =   2520
-      Width           =   6360
-      _extentx        =   11430
-      _extenty        =   5927
+      Width           =   6720
+      _extentx        =   11218
+      _extenty        =   3598
    End
    Begin VB.ListBox lstUsers 
       Height          =   2010

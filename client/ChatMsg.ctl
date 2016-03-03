@@ -75,7 +75,7 @@ Public Property Let TestIndex(ByVal newVal As Integer)
     Nick.Caption = randomNick
     Nick.ToolTipText = Nick.Caption
     
-    Debug.Print Nick.Caption & " : " & Message.Caption & vbCrLf
+   ' Debug.Print Nick.Caption & " : " & Message.Caption & vbCrLf
 End Property
 
 Public Property Get TestIndex() As Integer
